@@ -4,13 +4,11 @@
 ### Scripts Overview
 
 #### 1. `capture_kvcache.py`
-- **Purpose**: Captures KV cache data, computes pairwise similarities, and clusters tokens based on hybrid similarity.
+- **Purpose**: Captures the KV cache from a model and stores it to disk for further analysis.
 - **Key Features**:
-  - Computes temporal, semantic, and hybrid similarities.
-  - Clusters tokens into pages of up to `page_size` tokens.
-  - Outputs detailed cluster information to CSV files.
-- **Output**: `layer_{layer_idx}_cluster_with_similarities.csv` containing:
-  - Cluster ID, token pairs, temporal/semantic/hybrid similarities.
+  - Extracts KV caches for each transformer layer.
+  - Saves the KV data as `.pkl` files for efficient storage.
+- **Output**: Files named `kv_cache_layer_{layer_idx}.pkl` in the specified directory.
 
 ---
 
