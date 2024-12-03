@@ -39,7 +39,7 @@ def parse_args():
 def load(model_name_or_path):
     print(f"Loading model from {model_name_or_path} ...")
     # however, tensor parallel for running falcon will occur bugs
-    tokenizer = LlamaTokenizer.from_pretrained(
+    tokenizer = AutoTokenizer.from_pretrained(
         model_name_or_path,
         trust_remote_code=True,
     )

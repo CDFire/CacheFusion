@@ -1,18 +1,24 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from datasets import load_dataset
+from tqdm import tqdm
 import pickle
 import os
 
-model_path = "/data/xier2/mixture_of_depths/meta-llama-3-8B" 
+model_path = "crumb/nano-mistral" 
 tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained(
+    model_path, 
+    device_map="auto", 
+    load_in_4bit=True,
+    trust_remote_code=True
+    )
 
 model.config.use_cache = True
 
 dataset = load_dataset("wikitext", "wikitext-2-raw-v1", split="test")
 
-output_dir = "/data/xier2/bitplane/kv_cache/llama3_8b/wikitext/fp32"
+output_dir = "kv_cache/{}/wikitext/fp32".format(model_path)
 os.makedirs(output_dir, exist_ok=True)
 
 layer_kv_cache = {}
@@ -20,7 +26,7 @@ layer_kv_cache = {}
 precision = torch.float32 
 
 num_examples = 10000
-for i, example in enumerate(dataset):
+for i, example in tqdm(enumerate(dataset), total=len(dataset)):
     if i >= num_examples:
         break
 
@@ -41,9 +47,9 @@ for i, example in enumerate(dataset):
         layer_kv_cache[layer_idx]["keys"].append(keys_converted)
         layer_kv_cache[layer_idx]["values"].append(values_converted)
 
-    print(f"Processed {i + 1} entries")
+    #print(f"Processed {i + 1} entries")
 
-for layer_idx, kv in layer_kv_cache.items():
+for layer_idx, kv in tqdm(layer_kv_cache.items()):
     layer_file = os.path.join(output_dir, f"kv_cache_layer_{layer_idx}.pkl")
     
     with open(layer_file, "wb") as f:

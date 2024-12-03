@@ -18,8 +18,20 @@ from streaming_llm.pos_shift.modify_llama_cam import enable_llama_pos_shift_atte
 enable_llama_pos_shift_attention={"cam":enable_llama_pos_shift_attention_cam, "streamingllm":enable_llama_pos_shift_attention_sink}
 StartRecentKVCache={"cam":StartRecentKVCache_cam, "streamingllm":StartRecentKVCache_sink}
 
+class Config:
+    enable_start_recent_kv_cache = True
+    enable_pos_shift = False
+    model_name_or_path = "huggyllama/llama-7b"
+    dataset_name = "wikitext"
+    task = "wikitext-2-raw-v1"
+    split="test"
+    method = "cam"
+    num_samples = 100
+    num_eval_tokens = None
+    
+
+args = Config()
 device = "cuda"
-args = parse_args()
 
 data = load_dataset(args.dataset_name,args.task, split=args.split)
 
@@ -27,13 +39,14 @@ model, tokenizer = load(args.model_name_or_path)
 nlls = []
 loss_fn = CrossEntropyLoss(reduction="none")
 past_key_values = None
+ 
 
 if args.enable_start_recent_kv_cache== False and args.enable_pos_shift==False:
     print("the copression method is : dense")
 else:
     print("the copression method is : ",args.method)
 
-if args.enable_start_recent_kv_cache and args.method=="stramingllm":
+if args.enable_start_recent_kv_cache and args.method in ["streamingllm", "cam"]:
     if "llama" in model.config.model_type:
         k_seq_dim = v_seq_dim = 2
     elif "mpt" in model.config.model_type:
@@ -46,6 +59,7 @@ if args.enable_start_recent_kv_cache and args.method=="stramingllm":
         k_seq_dim = 1
     else:
         raise ValueError(f"got {model.config.model_type}")
+    
     kv_cache = StartRecentKVCache[args.method](
         start_size=args.start_size,
         recent_size=args.recent_size,

@@ -5,8 +5,8 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Parameters
-kv_cache_dir = "/data/xier2/bitplane/kv_cache/llama3_8b/wikitext/fp32"  # Directory with KV cache files
-output_dir = "/data/xier2/bitplane/kv_cache/cluster_results"  # Directory to save clustering results
+kv_cache_dir = "kv_cache/crumb/nano-mistral/wikitext/fp32"  # Directory with KV cache files
+output_dir = "cluster_results/crumb/nano-mistral/wikitext/fp32"  # Directory to save clustering results
 os.makedirs(output_dir, exist_ok=True)
 
 page_size = 16  # Maximum number of tokens per cluster
@@ -47,7 +47,7 @@ def perform_clustering_with_similarities(layer_idx, kv_cache, beta, page_size, n
 
     # Compute semantic similarity (cosine similarity)
     print("Calculating semantic similarity...")
-    semantic_sim = cosine_similarity(keys[:num_tokens].reshape(num_tokens, -1))
+    semantic_sim = cosine_similarity(keys[: ].reshape(num_tokens, -1))
 
     # Initialize hybrid similarity matrix
     hybrid_sim = np.zeros_like(semantic_sim)
